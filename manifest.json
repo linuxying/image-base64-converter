@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Image Base64 Converter",
+  "description": "Convert images to raw Base64 payloads and raw Base64 payloads back to images.",
+  "version": "1.0.0",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Image Base64 Converter",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "permissions": []
+}

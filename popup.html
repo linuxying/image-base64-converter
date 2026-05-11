@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Image Base64 Converter</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="header">
+        <div>
+          <p class="eyebrow">Image Utility</p>
+          <h1>Image Base64 Converter</h1>
+        </div>
+        <span class="badge">RAW</span>
+      </header>
+
+      <section class="panel">
+        <div class="section-title">
+          <h2>Image to Base64</h2>
+          <div class="title-actions">
+            <button id="copyBase64" class="icon-button" type="button" title="Copy full Base64" disabled>
+              <span aria-hidden="true">CP</span>
+              <span class="sr-only">Copy full Base64</span>
+            </button>
+            <button id="saveBase64" class="icon-button" type="button" title="Save Base64 as TXT" disabled>
+              <span aria-hidden="true">TXT</span>
+              <span class="sr-only">Save Base64 as TXT</span>
+            </button>
+            <button id="previewBase64" class="icon-button" type="button" title="Preview generated Base64" disabled>
+              <span aria-hidden="true">IMG</span>
+              <span class="sr-only">Preview generated Base64</span>
+            </button>
+          </div>
+        </div>
+
+        <label class="drop-zone" for="imageInput" id="dropZone">
+          <input id="imageInput" type="file" accept="image/*">
+          <span class="drop-mark">+</span>
+          <span class="drop-main">Choose or drop an image</span>
+          <span class="drop-sub">Output is raw Base64 only, without a data URL header.</span>
+        </label>
+
+        <textarea id="base64Output" spellcheck="false" readonly placeholder="Raw Base64 payload appears here. Large payloads show only the first characters, without any extra text."></textarea>
+
+        <div class="meta-row">
+          <span id="imageMeta">No image selected</span>
+          <span id="base64Size">0 chars</span>
+        </div>
+        <p id="outputNote" class="status"></p>
+      </section>
+
+      <section class="panel">
+        <div class="section-title">
+          <h2>Base64 to Image</h2>
+          <select id="mimeType" title="Image type">
+            <option value="image/png">PNG</option>
+            <option value="image/jpeg">JPEG</option>
+            <option value="image/webp">WEBP</option>
+            <option value="image/gif">GIF</option>
+            <option value="image/svg+xml">SVG</option>
+          </select>
+        </div>
+
+        <textarea id="base64Input" spellcheck="false" placeholder="Paste raw Base64 payload. The data:image/...;base64, header is optional and will be stripped."></textarea>
+        <p id="inputNote" class="status"></p>
+
+        <div class="preview-wrap" id="previewWrap">
+          <img id="previewImage" alt="Base64 preview">
+          <p id="previewEmpty">Image preview appears here</p>
+        </div>
+
+        <div class="actions">
+          <button id="clearInput" class="secondary" type="button">Clear</button>
+          <button id="previewInput" class="secondary" type="button" disabled>Preview</button>
+          <button id="downloadImage" type="button" disabled>Download Image</button>
+        </div>
+
+        <p id="status" class="status" role="status"></p>
+      </section>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
