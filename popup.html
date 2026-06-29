@@ -1,36 +1,44 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Image Base64 Converter</title>
+    <title>Base64 Universal Decoder</title>
     <link rel="stylesheet" href="popup.css">
   </head>
   <body>
     <main class="shell">
       <header class="header">
         <div>
-          <p class="eyebrow">Image Utility</p>
-          <h1>Image Base64 Converter</h1>
+          <p class="eyebrow">Base64 Lab</p>
+          <h1>万能解码器</h1>
+          <p class="header-sub">图片专项增强，文本与文件一并处理</p>
         </div>
-        <span class="badge">RAW</span>
+        <span class="badge">LOCAL</span>
       </header>
 
       <section class="panel">
         <div class="section-title">
-          <h2>Image to Base64</h2>
+          <div>
+            <h2>图片转 Base64</h2>
+            <p class="section-sub">选择图片后输出纯 Base64，也可复制 Data URL。</p>
+          </div>
           <div class="title-actions">
-            <button id="copyBase64" class="icon-button" type="button" title="Copy full Base64" disabled>
+            <button id="copyBase64" class="icon-button" type="button" title="复制纯 Base64" disabled>
               <span aria-hidden="true">CP</span>
-              <span class="sr-only">Copy full Base64</span>
+              <span class="sr-only">复制纯 Base64</span>
             </button>
-            <button id="saveBase64" class="icon-button" type="button" title="Save Base64 as TXT" disabled>
+            <button id="copyDataUrl" class="icon-button" type="button" title="复制 Data URL" disabled>
+              <span aria-hidden="true">URL</span>
+              <span class="sr-only">复制 Data URL</span>
+            </button>
+            <button id="saveBase64" class="icon-button" type="button" title="保存 Base64 TXT" disabled>
               <span aria-hidden="true">TXT</span>
-              <span class="sr-only">Save Base64 as TXT</span>
+              <span class="sr-only">保存 Base64 TXT</span>
             </button>
-            <button id="previewBase64" class="icon-button" type="button" title="Preview generated Base64" disabled>
-              <span aria-hidden="true">IMG</span>
-              <span class="sr-only">Preview generated Base64</span>
+            <button id="previewBase64" class="icon-button" type="button" title="送到解码器预览" disabled>
+              <span aria-hidden="true">VIEW</span>
+              <span class="sr-only">送到解码器预览</span>
             </button>
           </div>
         </div>
@@ -38,14 +46,14 @@
         <label class="drop-zone" for="imageInput" id="dropZone">
           <input id="imageInput" type="file" accept="image/*">
           <span class="drop-mark">+</span>
-          <span class="drop-main">Choose or drop an image</span>
-          <span class="drop-sub">Output is raw Base64 only, without a data URL header.</span>
+          <span class="drop-main">选择或拖入图片</span>
+          <span class="drop-sub">支持 PNG、JPEG、WEBP、GIF、SVG 等浏览器可读图片。</span>
         </label>
 
-        <textarea id="base64Output" spellcheck="false" readonly placeholder="Raw Base64 payload appears here. Large payloads show only the first characters, without any extra text."></textarea>
+        <textarea id="base64Output" spellcheck="false" readonly placeholder="图片的纯 Base64 会显示在这里；大文件只展示前一段，复制和保存仍使用完整内容。"></textarea>
 
         <div class="meta-row">
-          <span id="imageMeta">No image selected</span>
+          <span id="imageMeta">未选择图片</span>
           <span id="base64Size">0 chars</span>
         </div>
         <p id="outputNote" class="status"></p>
@@ -53,28 +61,52 @@
 
       <section class="panel">
         <div class="section-title">
-          <h2>Base64 to Image</h2>
-          <select id="mimeType" title="Image type">
+          <div>
+            <h2>Base64 万能解码</h2>
+            <p class="section-sub">自动识别图片、文本、PDF、压缩包、音视频或未知二进制。</p>
+          </div>
+          <select id="fallbackType" title="识别失败时使用的类型">
+            <option value="auto">自动</option>
+            <option value="text/plain">文本</option>
             <option value="image/png">PNG</option>
             <option value="image/jpeg">JPEG</option>
             <option value="image/webp">WEBP</option>
             <option value="image/gif">GIF</option>
             <option value="image/svg+xml">SVG</option>
+            <option value="application/pdf">PDF</option>
+            <option value="application/octet-stream">文件</option>
           </select>
         </div>
 
-        <textarea id="base64Input" spellcheck="false" placeholder="Paste raw Base64 payload. The data:image/...;base64, header is optional and will be stripped."></textarea>
+        <textarea id="base64Input" spellcheck="false" placeholder="粘贴纯 Base64 或 data:*/*;base64,...。系统会自动清理空白并尝试识别原始格式。"></textarea>
         <p id="inputNote" class="status"></p>
 
+        <div class="detect-grid" aria-live="polite">
+          <div>
+            <span class="detect-label">类型</span>
+            <strong id="detectedType">等待输入</strong>
+          </div>
+          <div>
+            <span class="detect-label">大小</span>
+            <strong id="decodedSize">0 B</strong>
+          </div>
+          <div>
+            <span class="detect-label">来源</span>
+            <strong id="detectedSource">-</strong>
+          </div>
+        </div>
+
         <div class="preview-wrap" id="previewWrap">
-          <img id="previewImage" alt="Base64 preview">
-          <p id="previewEmpty">Image preview appears here</p>
+          <img id="previewImage" alt="Base64 图片预览">
+          <pre id="textPreview"></pre>
+          <p id="previewEmpty">解码预览会显示在这里</p>
         </div>
 
         <div class="actions">
-          <button id="clearInput" class="secondary" type="button">Clear</button>
-          <button id="previewInput" class="secondary" type="button" disabled>Preview</button>
-          <button id="downloadImage" type="button" disabled>Download Image</button>
+          <button id="clearInput" class="secondary" type="button">清空</button>
+          <button id="decodeInput" class="secondary" type="button" disabled>解码</button>
+          <button id="copyDecodedText" class="secondary" type="button" disabled>复制文本</button>
+          <button id="downloadDecoded" type="button" disabled>下载文件</button>
         </div>
 
         <p id="status" class="status" role="status"></p>
